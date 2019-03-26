@@ -25,6 +25,7 @@
     "@types/body-parser": "^1.17.0",
     "@types/jsonschema": "^1.1.1",
     "@types/nano": "^7.0.0",
+    "@types/uuid": "^3.4.4",
     "ajv": "^6.10.0",
     "fs": "0.0.1-security",
     "nano": "^8.0.1",
