@@ -4,25 +4,26 @@ import * as loginModel from '../models/LoginModel';
 import * as utility from '../scripts/utility';
 import { Request, Response } from 'express';
 import { NextFunction } from 'connect';
+import * as Q from 'q';
 
-var __design_view = "objectList";
 
 export class userAccessController {
-    
+    private __design_view: string = "objectList";
     public authentication(req: Request, res: Response) {
         let uti=new utility.utility();
+        
         let js =req.body;
         (!js.data || js.data === undefined) ? js.data = {} : js.data;
-        let usr = js.data.user;
         let db=uti.create_db('taskmanageruser');
         // CHECK ACCESS TOKEN & IP 
+        let usr = js.data.user;
         // AUTHENTICATION
         db.then((re)=>{
-            re.view('_designObject', 'authentication', {
-                'keys': ['username', 'password']
+            re.view(this.__design_view, 'authentication', {
+                'keys': [usr.username, usr.password]
               }).then((body) => {
                 if(body.rows.length){
-                    js.client.logintoken="";
+                    js.client.logintoken=uti.genUUID();
                     js.client.logintime=new Date();
                     js.client.data.user={};
                     js.client.message="OK LOGIN";
@@ -43,7 +44,7 @@ export class userAccessController {
         let uti=new utility.utility();
         let js =req.body;
         (!js.data || js.data === undefined) ? js.data = {} : js.data;
-        let usr = js.data.user;
+        let login = js.logintoken;
         // CHECK ACCESS TOKEN & IP 
         // CHECK LOGIN TOKEN ( AUTHORIZATION )
         // PASS IF LOGIN OK
