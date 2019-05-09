@@ -11,7 +11,6 @@ export class userAccessController {
     private __design_view: string = "objectList";
     public authentication(req: Request, res: Response) {
         let uti=new utility.utility();
-        
         let js =req.body;
         (!js.data || js.data === undefined) ? js.data = {} : js.data;
         let db=uti.create_db('taskmanageruser');
@@ -50,5 +49,26 @@ export class userAccessController {
         // PASS IF LOGIN OK
         // GO TO LOGIN IF LOGIN ERROR
         
+    }
+    public authenticationSuper(req: Request, res: Response) {
+        let uti=new utility.utility();
+        let js =req.body;
+        (!js.data || js.data === undefined) ? js.data = {} : js.data;
+        let db=uti.create_db('taskmanageruser');
+        // CHECK ACCESS TOKEN & IP 
+        let usr = js.data.user;
+        // AUTHENTICATION SUPER admin
+        if(usr.username==="superadmin"&&usr.password==="123456@!!!"){
+            js.username="superadmin";
+            js.logintime=new Date();
+            js.loginip="";
+            js.logintoken=uti.genUUID();
+
+            js.data.user.password="";
+            js.data.user.username="";
+
+            res.send(js);
+        }
+       
     }
 }

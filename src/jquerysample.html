@@ -1,0 +1,123 @@
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+<script type="text/javascript">
+// DEFAULT FORMAT FOR CLIENT
+    var _client = {
+        accessedtime: new Date(),
+        clientip: "",
+        data: {},
+        gui: "",
+        lastupdate: "",
+        loginip: "",
+        logintime: "",
+        logintoken: "",
+        timeout: 86400,
+        username: "",
+    };
+
+    function login() {
+        var user = $('#username').val();
+        var pass = $('#password').val();
+        // all request data 
+        _client.data.user.username = user;
+        _client.data.user.password = pass;
+        _client.data.command='login';
+        // command list : 
+        // login 
+        // forgotpassword
+        // forgotusername
+        // changepassword 
+        // profile
+        // createuser
+        // updateuser
+        // verticalusersline
+        // 
+        // createdoc
+        // updatedoc
+        // createjob
+        // updatejob
+        // doclist
+        // joblist 
+        // approvaluserlist
+        // pendingapprovelist
+        // 
+
+
+
+
+        // HOW TO SET TO SERVER
+        $.ajax({
+            type: 'POST', // METHOD 
+            url: '/user', // PATH  or /admin
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            data: _client, // DATA TO SEND
+            success: function (data) {
+                _client=data;
+                bindData();
+                $('#notificationpanel').html = "<p>" +_client.data.message + "</p>";
+                $("#notificationpanel").fadeIn("slow",function(){
+                    $('#notificationpanel').fadeOut( "slow" );
+                });
+
+                $('#notificationpanellist').append("<p>" +_client.data.message + "</p>");
+                
+            },
+            failure: function (data) {
+                _client=data;
+
+                $('#errorpanel').html = "<p>" + _client.data.errormessage + "</p>";
+                $('#errorpanel').fadeIn("slow",function(){
+                    $('#errorpanel').fadeOut( "slow" );
+                });
+                // 
+                $('#errorpanellist').append = ("<p>" + _client.data.errormessage + "</p>");
+                console.log(_client.data.message);
+            }
+        });
+    }
+    function bindData(){
+        var username=_client.username;
+        var ip = _client.loginip;
+        var logintime=_client.logintime;
+        $("#loginusername").text("welcome: "+username);
+        $("#loginip").text("IP: "+ip);
+        $("#logintime").text("login time: "+logintime);
+    }
+    function saveClient() {
+        localStorage.setItem('taskmanagerclient', JSON.stringify(_client));
+    }
+
+    function getClient() {
+        // check if it is set
+        try {
+            _client = JSON.parse(localStorage.getItem('taskmanagerclient'));
+        } catch (error) {
+            console.log('localstorage empty');
+            // reset all data when local storage is empty
+            _client = {
+                accessedtime: new Date(),
+                clientip: "",
+                data: {},
+                gui: "",
+                lastupdate: "",
+                loginip: "",
+                logintime: "",
+                logintoken: "",
+                timeout: 86400,
+                username: "",
+            };
+
+        }
+
+    }
+</script>
+
+<div id="content">
+    username:<input type="text" id="username" />
+    password:<input type="text" id="pass" />
+
+</div>
+<div id="notificationpanel"></div>
+<div id="notificationpanellist"></div>
+<div id="errorpanel"></div>
+<div id="errorpanellist"></div>

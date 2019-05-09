@@ -8,10 +8,11 @@ import * as loginModel from '../models/LoginModel';
 var passwordValidator:any = require('password-validator');
 
 let nano = Nano('http://localhost:5984');
-let r_client = redis.createClient();
+let r_client ;
 let _current_system = "tastmanagement";
 
 export class utility {
+    r_client= redis.createClient();
     private _prefix:string='skytelecom@?$##@$J34';
     private __design_view: string = "objectList";
     private _configSys:configSystem;
@@ -117,6 +118,43 @@ export class utility {
     public genUUID() {
         return uuidv();
     }
+    public init_redis() {
+        this.r_client.flushdb((err, succeeded) => {
+            console.log(succeeded); // will be true if successfull
+        });
+    }
+    public saveLoginToken(user,logintoken){
+        // r_client.set(user.username,logintoken,()=>{
+        //     console.log('OK get user login token');
+            r_client.set("__usertoken__"+user.gui,logintoken,()=>{
+                console.log('OK get user token');
+                r_client.set("__userusergui__"+logintoken,user.gui,()=>{
+                    console.log('OK save user gui');
+                    
+                });
+            });
+        //});
+    }
+    public removeLoginToken(user,logintoken){
+        return r_client.del(user.username,logintoken,(body)=>{
+            console.log('OK delete login token '+body);
+        });
+    }
+    public getLoginToken(usergui){
+        return r_client.get("__logintoken__"+usergui,(body)=>{
+            console.log('OK save login token '+body);
+        });
+    }
+    public getUserGUI(logintoken){
+        return r_client.get("__usergui__"+logintoken,(body)=>{
+            console.log('OK save login token '+body);
+        });
+    }
+    public checkLoginToken(logintoken){
+        return r_client.exists("__usertoken__"+logintoken,(body)=>{
+            console.log('OK check login token');
+        });
+    }
     public async create_db(dbname: string): Promise<Nano.DocumentScope<any>> {
         nano.db.create(dbname, (err, body) => {
             // specify the database we are going to use    
@@ -126,6 +164,26 @@ export class utility {
                 console.log(dbname + " could not be created!");
         });
         return nano.use(dbname);
+    }
+    filterObject(obj) {
+        var need = ['_rev', 'password', 'oldphone', 'system', 'parents', 'roles', 'isActive'];
+        //console.log(key);
+        for (let i in obj) {
+            //if(i==='password')
+            //console.log(obj[i]);
+            for (let x = 0; x < need.length; x++) {
+                let key = need[x];
+                if (!obj.hasOwnProperty(i)) { } else if (Array.isArray(obj[i])) {
+                    if (i.toLowerCase().indexOf(key) > -1)
+                        obj[i] = [];
+                } else if (typeof obj[i] === 'object') {
+                    this.filterObject(obj[i]);
+                } else if (i.indexOf(key) > -1) {
+                    obj[i] = '';
+                }
+            }
+        }
+        return obj;
     }
     public async init_taskmanager():Promise<any>{
         let deferred=Q.defer();
@@ -335,11 +393,51 @@ export class utility {
         });
         return deferred.promise;
     }
+    init_default_user(client) {
+        //let db = create_db('gijusers');
+        //console.log('default user:'+defaultUser.username);
+        // findUserByUsername(defaultUser.username).then((res) {
+        //     if (res) {
+        nano.db.destroy('taskmanageruser', (err, body) => {
+            client.data = {};
+            client.data.message = 'destroy OK';
+            nano.db.create('taskmanageruser', (err, body) => {
+                // specify the database we are going to use    
+                if (!err) {
+                    console.log('database  created!');
+                } else {
+                    console.log("taskmanageruser could not be created!");
+                }
+                let db = nano.use('taskmanageruser');
+                db.insert(this.__design_users, "_design/objectList", (err, res) => {
+                    if (err) console.log('err insert new design ' + err);
+                    else {
+                        //setTimeout(() => {
+                        this.sDefaultUsers.push(this.defaultUser);
+                        db.bulk({
+                            docs: this.sDefaultUsers
+                        }, (err, res) => {
+                            // if (err) {
+                            //     client.data.message = err;
+                            //     res.send(client);
+                            // } else {
+                            //     js.client.data.message = 'OK INIT default users';
+                            //     js.resp.send(js.client);
+                            // }
+                        });
+                        //}, 1000*3);
+                    }
+                });
+
+            });
+
+        });
+    }
     public defaultUser: gijuser = {
-        username: '@d31n',
-        password: '123456',
+        username: 'superadmin',
+        password: '123456@!!!',
         confirmpassword: '',
-        phonenumber: '2054445447',
+        phonenumber: '2055516321',
         gui: this.genUUID(),
         createddate: this.convertTZ(moment().format()),
         lastupdate: this.convertTZ(moment().format()),
@@ -351,12 +449,29 @@ export class utility {
         description: '',
         photo: [],
         note: '',
-        system: ['gij', 'web-post', 'user-management', 'ice-maker', 'gps'],
-        gijvalue: 0,
-        totalgij: 0,
-        totalgijspent: 0,
+        system: ['taskmanagement'],
         oldphone: [],
     }
+    private sDefaultUsers: Array<gijuser> = [{
+        username: 'superadmin',
+        password: '123456@!!!',
+        confirmpassword: '',
+        phonenumber: '2055516321',
+        gui: this.genUUID(),
+        createddate: this.convertTZ(moment().format()),
+        lastupdate: this.convertTZ(moment().format()),
+        isactive: true,
+        parents: ["default"],
+        roles: ['admin', 'user'],
+        logintoken: '',
+        expirelogintoken: '',
+        description: '',
+        photo: [],
+        note: '',
+        system: ['web-post', 'gij'],        
+        oldphone: [],
+    }];
+
 }
 
 export interface  guiObj {
@@ -416,8 +531,5 @@ export interface gijuser {
     photo: Array<photoObj>;
     note: string;
     system: Array<string>; /// ice-maker, gij, stock-manager....
-    gijvalue: number;
-    totalgij: number;
-    totalgijspent: number;
     oldphone: Array<string> | undefined;
 }
