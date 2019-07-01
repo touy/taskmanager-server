@@ -15,7 +15,6 @@ class App {
       this.config();      
       this.routePrv.routes(this.app);      
   }
-
   private config(): void{
       // support application/json type post data
       this.app.use(bodyParser.json());
