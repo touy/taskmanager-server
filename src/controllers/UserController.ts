@@ -46,7 +46,7 @@ export class UserController {
         }
 
     }
-    findUserByGUI(gui) {
+    findUserByGUI(gui: string) {
         let deferred = Q.defer();
         let uti=new utility.utility();
         let db = uti.create_db('gijusers');
@@ -76,7 +76,7 @@ export class UserController {
         
         return deferred.promise;
     }
-    displayUserDetails(gui) {
+    displayUserDetails(gui: string) {
         let deferred = Q.defer();
         let uti =new utility.utility();
         this.findUserByGUI(gui).then((res) => {
@@ -143,11 +143,11 @@ export class UserController {
         console.log(userModel.UserSchema);
         res.send(userModel.UserSchema);
     }
-    public addSubUser(userinfo) {
+    public addSubUser(userinfo:any) {
         let deferred = Q.defer();
         let uti = new utility.utility();
         let db = uti.create_db('gijusers') as any;
-        let parents = [];
+        let parents:any = [];
         if (userinfo.parents === undefined) {
             userinfo.parents = ['default'];
         }
@@ -192,7 +192,7 @@ export class UserController {
                             userinfo.gijvalue = 0;
                             userinfo.totalgij = 0;
                             userinfo.totalgijspent = 0;
-                            db.insert(userinfo, userinfo.gui, (err, res) => {
+                            db.insert(userinfo, userinfo.gui, (err: any, res: any) => {
                                 if (err) deferred.reject(err);
                                 else {
                                     console.log('user added');
@@ -211,7 +211,7 @@ export class UserController {
         }
         return deferred.promise;
     }
-    public findUserByUsername(username) {
+    public findUserByUsername(username:any) {
         let deferred = Q.defer();
         let uti = new utility.utility();
         let db = uti.create_db('gijusers') as any;
@@ -224,7 +224,7 @@ export class UserController {
             }
             db.view(this.__design_view, 'findByUsername', {
                 keys: username
-            }, (err, res) => {
+            }, (err: any, res: { rows: { doc: any; }[]; }) => {
                 if (err) deferred.reject(err);
                 else {
                     //console.log(res);
@@ -252,11 +252,11 @@ export class UserController {
         return deferred.promise;
     }
 
-    public addUser(userinfo) {
+    public addUser(userinfo:any) {
         let deferred = Q.defer();
         let uti = new utility.utility();
         let db = uti.create_db('gijusers') as any;
-        let parents = [];
+        let parents:any = [];
         if (userinfo.parents === undefined) {
             userinfo.parents = ['default'];
         }
@@ -303,7 +303,7 @@ export class UserController {
                                     userinfo.gijvalue = 0;
                                     userinfo.totalgij = 0;
                                     userinfo.totalgijspent = 0;
-                                    db.insert(userinfo, userinfo.gui, (err, res) => {
+                                    db.insert(userinfo, userinfo.gui, (err: any, res: any) => {
                                         if (err) deferred.reject(err);
                                         else {
                                             console.log('user added');
@@ -326,7 +326,7 @@ export class UserController {
 
         return deferred.promise;
     }
-    findUserByUsernameAndPhone(username, phone) {
+    findUserByUsernameAndPhone(username:string, phone:string) {
         let deferred = Q.defer();
         let uti = new utility.utility();
         let db = uti.create_db('gijusers');
@@ -351,7 +351,7 @@ export class UserController {
 
         return deferred.promise;
     }
-    public change_password(client) {
+    public change_password(client:any) {
         let deferred = Q.defer();
         let uti = new utility.utility();
         let db = uti.create_db('taskmanageruser');
@@ -391,7 +391,7 @@ export class UserController {
         });
         return deferred.promise;
     }
-    updateUser(userinfo) {
+    updateUser(userinfo:any) {
         let deferred = Q.defer();
         let uti = new utility.utility();
         let db = uti.create_db('gijusers');
@@ -418,7 +418,7 @@ export class UserController {
 
         return deferred.promise;
     }
-    indUserByUsernameAndPhone(username, phone) {
+    indUserByUsernameAndPhone(username:string, phone:string) {
         let deferred = Q.defer();
         let uti = new utility.utility();
         let db = uti.create_db('taskmanageruser');
@@ -481,7 +481,7 @@ export class UserController {
         return deferred.promise;
     }
 
-    update_sub_userinfo(client) {
+    update_sub_userinfo(client:any) {
         let deferred = Q.defer();
         try {
             this.findUserByGUI(client.auth.gui).then(res => {
@@ -513,7 +513,7 @@ export class UserController {
         }
         return deferred.promise;
     }
-    reset_password(client) {
+    reset_password(client:any) {
         let deferred = Q.defer();
         let uti=new utility.utility();
         this.findUserByPhone(client.data.user.phonenumber).then((res: utility.gijuser) => {
@@ -563,7 +563,7 @@ export class UserController {
         }
         return deferred.promise;
     }
-    findUserByPhone(phone) {
+    findUserByPhone(phone:string) {
         let deferred = Q.defer();
         let uti=new utility.utility();
         let db = uti.create_db('taskmanageruser');

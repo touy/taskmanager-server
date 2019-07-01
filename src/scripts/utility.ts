@@ -8,7 +8,7 @@ import * as loginModel from '../models/LoginModel';
 var passwordValidator:any = require('password-validator');
 
 let nano = Nano('http://localhost:5984');
-let r_client ;
+let r_client: { set: { (arg0: string, arg1: any, arg2: () => void): void; (arg0: string, arg1: any, arg2: () => void): void; }; del: (arg0: any, arg1: any, arg2: (body: any) => void) => void; get: { (arg0: string, arg1: (body: any) => void): void; (arg0: string, arg1: (body: any) => void): void; (arg0: string, arg1: (err: any, r: any) => void): void; (arg0: string, arg1: (err: any, r: any) => void): void; }; exists: (arg0: string, arg1: (body: any) => void) => void; } ;
 let _current_system = "tastmanagement";
 
 export class utility {
@@ -123,7 +123,7 @@ export class utility {
             console.log(succeeded); // will be true if successfull
         });
     }
-    public saveLoginToken(user,logintoken){
+    public saveLoginToken(user: { gui: string; },logintoken: string){
         // r_client.set(user.username,logintoken,()=>{
         //     console.log('OK get user login token');
             r_client.set("__usertoken__"+user.gui,logintoken,()=>{
@@ -135,23 +135,23 @@ export class utility {
             });
         //});
     }
-    public removeLoginToken(user,logintoken){
-        return r_client.del(user.username,logintoken,(body)=>{
+    public removeLoginToken(user: { username: any; },logintoken: any){
+        return r_client.del(user.username,logintoken,(body: string)=>{
             console.log('OK delete login token '+body);
         });
     }
-    public getLoginToken(usergui){
-        return r_client.get("__logintoken__"+usergui,(body)=>{
+    public getLoginToken(usergui: string){
+        return r_client.get("__logintoken__"+usergui,(body: string)=>{
             console.log('OK save login token '+body);
         });
     }
-    public getUserGUI(logintoken){
-        return r_client.get("__usergui__"+logintoken,(body)=>{
+    public getUserGUI(logintoken: string){
+        return r_client.get("__usergui__"+logintoken,(body: string)=>{
             console.log('OK save login token '+body);
         });
     }
-    public checkLoginToken(logintoken){
-        return r_client.exists("__usertoken__"+logintoken,(body)=>{
+    public checkLoginToken(logintoken: string){
+        return r_client.exists("__usertoken__"+logintoken,(body: any)=>{
             console.log('OK check login token');
         });
     }
@@ -165,7 +165,7 @@ export class utility {
         });
         return nano.use(dbname);
     }
-    filterObject(obj) {
+    filterObject(obj: any) {
         var need = ['_rev', 'password', 'oldphone', 'system', 'parents', 'roles', 'isActive'];
         //console.log(key);
         for (let i in obj) {
@@ -280,7 +280,7 @@ export class utility {
                 js.data.message = 'OK';
                 deferred.resolve(js);
             } else {
-                r_client.get(_current_system + '_login_' + js.logintoken, (err, r) => {
+                r_client.get(_current_system + '_login_' + js.logintoken, (err: any, r: string) => {
                     if (err) {
                         js.data.message = err;
                         deferred.reject(js);
@@ -289,7 +289,7 @@ export class utility {
                             let res = JSON.parse(r) as loginObj;
                             if (res.client.logintoken !== undefined) {
                                 js.data.message = 'OK';
-                                r_client.get(_current_system + '_usergui_' + js.logintoken, (err, r) => {
+                                r_client.get(_current_system + '_usergui_' + js.logintoken, (err: any, r: string) => {
                                     if (err) {
                                         js.data.message = err;
                                         deferred.reject(js);
@@ -353,35 +353,35 @@ export class utility {
         });
         return deferred.promise;
     }
-    convertTZ(fromTZ) {
+    convertTZ(fromTZ: string) {
         
         return new Date(moment.tz(fromTZ, "Asia/Vientiane").format().replace('+07:00',''));
     }
-    validatePassword(pass) {
+    validatePassword(pass: any) {
         return this.passValidator.validate(pass, {
             list: true
         });
 
     }
-    validateUserInfo(u) {
+    validateUserInfo(u: any) {
         console.log(u);
         return this.userValidator.validate(u, {
             list: true
         });
     }
 
-    validatePhoneInfo(p) {
+    validatePhoneInfo(p: any) {
         console.log(p);
         return this.phoneValidator.validate(p, {
             list: true
         });
     }
-    checkUserByPhone(phone) {
+    checkUserByPhone(phone: string) {
         let deferred = Q.defer();
         let db = this.create_db('taskmanageruser') as any;
         db.view(this.__design_view, 'findByPhone', {
             include_docs: true, key: phone + ''
-        }, (err, res) => {
+        }, (err: any, res: { rows: { doc: any; }[]; }) => {
             if (err) deferred.reject(err);
             else {
                 let arr = [];
@@ -393,7 +393,7 @@ export class utility {
         });
         return deferred.promise;
     }
-    init_default_user(client) {
+    init_default_user(client: { data: { message?: any; }; }) {
         //let db = create_db('gijusers');
         //console.log('default user:'+defaultUser.username);
         // findUserByUsername(defaultUser.username).then((res) {
