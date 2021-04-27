@@ -40,7 +40,7 @@
     "password-validator": "^4.1.1",
     "path": "^0.12.7",
     "q": "^1.5.1",
-    "redis": "^2.8.0",
+    "redis": "^3.1.1",
     "typescript": "^3.3.4000"
   },
   "devDependencies": {
